@@ -47,6 +47,8 @@ app.use(require("./middlewares/exposeFlashMessage"));
 
 // expose login status to the hbs templates
 app.use(require("./middlewares/exposeLoginStatus"));
+// app.use(require("./middlewares/protectAdminRoute"))
+// app.use(require("./middlewares/protectRoute"))
 
 // connect routers
 const indexRouter = require("./routes/index");

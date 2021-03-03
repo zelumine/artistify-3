@@ -14,7 +14,7 @@ router.get("/signup", (req, res, next) => {
 router.get("/signout", (req, res, next) => {
   req.session.destroy((error) => {
     console.log(error);
-    res.redirect("/signin");
+    res.redirect("/auth/signin");
   });
 });
 
@@ -62,36 +62,36 @@ router.post("/signin", (req, res, next) => {
         req.session.currentUser = userObject;
 
         req.flash("success", "Successfully logged in...");
-        res.redirect("/index");
+        res.redirect("/dashboard");
       }
     }
   })
   .catch(next);
 });
 
-router.post("/signin", async (req, res, next) => {
-  const { email, password } = req.body;
-  const foundUser = await User.findOne({ email: email });
+// router.post("/signin", async (req, res, next) => {
+//   const { email, password } = req.body;
+//   const foundUser = await User.findOne({ email: email });
 
-  if (!foundUser) {
-    req.flash("error", "Invalid credentials");
-    res.redirect("/auth/signin");
-  } else {
-    const isSamePassword = bcrypt.compareSync(password, foundUser.password);
-    if (!isSamePassword) {
-      req.flash("error", "Invalid credentials");
-      res.redirect("/auth/signin");
-    } else {
-      const userObject = foundUser.toObject();
-      delete userObject.password;
+//   if (!foundUser) {
+//     req.flash("error", "Invalid credentials");
+//     res.redirect("/auth/signin");
+//   } else {
+//     const isSamePassword = bcrypt.compareSync(password, foundUser.password);
+//     if (!isSamePassword) {
+//       req.flash("error", "Invalid credentials");
+//       res.redirect("/auth/signin");
+//     } else {
+//       const userObject = foundUser.toObject();
+//       delete userObject.password;
 
-      req.session.currentUser = userObject;
+//       req.session.currentUser = userObject;
 
-      req.flash("success", "Successfully logged in...");
-      res.redirect("/");
-    }
-  }
-});
+//       req.flash("success", "Successfully logged in...");
+//       res.redirect("/");
+//     }
+//   }
+// });
 
 
 module.exports = router;
