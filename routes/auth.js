@@ -1,27 +1,68 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const User = require('./../model/User');
-const bcrypt = require('bcrypt');
+const User = require("./../model/User");
+const bcrypt = require("bcrypt");
 
-router.get('/signin', (req, res, next) => {
-    res.render('/auth/signin');
+router.get("/signin", (req, res, next) => {
+  res.render("/auth/signin");
 });
 
-router.get('/signup', (req, res, next) => {
-    res.render('/auth/signup');
+router.get("/signup", (req, res, next) => {
+  res.render("/auth/signup");
 });
 
-router.get('/signout', (req, res, next) => {
-    req.session.destroy((error) => {
-        console.log(error);
-        res.redirect('/signin');
-    })
+router.get("/signout", (req, res, next) => {
+  req.session.destroy((error) => {
+    console.log(error);
+    res.redirect("/signin");
+  });
 });
 
-// router.post('/signin', (req, res, next) => {
-//     res.render('auth/signin');
-// });
+router.post("/signup", async (req, res, next) => {
+  try {
+    const newUser = { ...req.body };
+    const foundUser = await User.findOne({ email: newUser.email });
 
-// router.post('/signup', (req, res, next) => {
-//     res.render('auth/signup');
-// });
+    if (foundUser) {
+      res.flash("warning", "email already registered");
+      res.render("auth/signin");
+    } else {
+      const hashedPassword = bcrypt.hashSync(newUser.password, 10);
+      newUser.password = hashedPassword;
+      await User.create(newUser);
+      req.flash("success", "Congrat! You're in!");
+      res.redirect("/auth/signin");
+    }
+  } catch (error) {
+    let errorMsg = "";
+    for (field in error.errors) {
+      errorMsg += error.errors[field].message + "\n";
+    }
+    req.flash("error", errorMsg);
+    res.redirect("/auth/signup");
+  }
+});
+
+router.post("/signin", async (req, res, next) => {
+  const { email, password } = req.body;
+  const foundUser = await User.findOne({ email: email });
+
+  if (!foundUser) {
+    req.flash("error", "Invalid credentials");
+    res.redirect("/auth/signin");
+  } else {
+    const isSamePassword = bcrypt.compareSync(password, foundUser.password);
+    if (!isSamePassword) {
+      req.flash("error", "Invalid credentials");
+      res.redirect("/auth/signin");
+    } else {
+      const userObject = foundUser.toObject();
+      delete userObject.password;
+
+      req.session.currentUser = userObject;
+
+      req.flash("success", "Successfully logged in...");
+      res.redirect("/profile");
+    }
+  }
+});
