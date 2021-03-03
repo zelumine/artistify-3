@@ -11,7 +11,7 @@ const userSchema = new Schema(
       type: String, 
       enum:["admin","user"],
       default:"user" },
-    avater:{ type: String, 
+    avatar:{ type: String, 
             default:"https://res.cloudinary.com/gdaconcept/image/upload/v1614762472/workshop-artistify/default-profile_tbiwcc.jpg"
   }
    }

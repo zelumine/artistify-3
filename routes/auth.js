@@ -4,11 +4,11 @@ const User = require("./../model/User");
 const bcrypt = require("bcrypt");
 
 router.get("/signin", (req, res, next) => {
-  res.render("/auth/signin");
+  res.render("auth/signin");
 });
 
 router.get("/signup", (req, res, next) => {
-  res.render("/auth/signup");
+  res.render("auth/signup");
 });
 
 router.get("/signout", (req, res, next) => {
@@ -39,8 +39,34 @@ router.post("/signup", async (req, res, next) => {
       errorMsg += error.errors[field].message + "\n";
     }
     req.flash("error", errorMsg);
-    res.redirect("/auth/signup");
+    res.redirect("/auth/signin");
   }
+});
+
+router.post("/signin", (req, res, next) => {
+  const { username, password } = req.body;
+  User.findOne({ username: username })
+  .then(foundUser => {
+    if (!foundUser) {
+      req.flash("error", "Invalid credentials");
+      res.redirect("/auth/signin");
+    } else {
+      const isSamePassword = bcrypt.compareSync(password, foundUser.password);
+      if (!isSamePassword) {
+        req.flash("error", "Invalid credentials");
+        res.redirect("/auth/signin");
+      } else {
+        const userObject = foundUser.toObject();
+        delete userObject.password;
+
+        req.session.currentUser = userObject;
+
+        req.flash("success", "Successfully logged in...");
+        res.redirect("/index");
+      }
+    }
+  })
+  .catch(next);
 });
 
 router.post("/signin", async (req, res, next) => {
@@ -62,7 +88,10 @@ router.post("/signin", async (req, res, next) => {
       req.session.currentUser = userObject;
 
       req.flash("success", "Successfully logged in...");
-      res.redirect("/profile");
+      res.redirect("/");
     }
   }
 });
+
+
+module.exports = router;

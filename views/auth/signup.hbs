@@ -1,0 +1,17 @@
+<h2>Sign up</h2>
+<form action="/auth/signup" method="post">
+<label for="username">Username</label>
+<input type="text" name="username" id="username" value="Test user">
+<label for="email">Email</label>
+<input type="email" name="email" id="email" value="test@test.com">
+<label for="password">Password</label>
+<input type="password" name="password" id="password">
+<label for="role">Role</label>
+<select name="role" id="role">
+  <option value="admin">Admin</option>
+  <option value="user" selected>User</option>
+</select>
+<label for="avatar">Avatar</label>
+<input type="file" id="avatar" name="avatar">
+<button>Sign up</button>
+</form>
